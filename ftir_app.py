@@ -1,6 +1,6 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib as plt
 import re
 
 # ========== Title ==========
@@ -72,3 +72,4 @@ if uploaded_file is not None:
         ax.invert_xaxis()  # IR spectra usually have high to low wavenumber
         ax.grid(True)
         st.pyplot(fig)
+
