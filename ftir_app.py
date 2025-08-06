@@ -64,7 +64,7 @@ if uploaded_file is not None:
 
         # === Plot ===
         fig, ax = plt.subplots(figsize=(8, 4))
-        ax.plot(x, y, color='blue', lw=2)
+        ax.plot(x, y, color='blue', lw=1)
         ax.set_xlabel("Wavenumber (cm⁻¹)")
         ax.set_ylabel("Intensity (a.u.)")
         ax.set_xlim(xlim)
@@ -72,5 +72,6 @@ if uploaded_file is not None:
         ax.invert_xaxis()  # IR spectra usually have high to low wavenumber
         ax.grid(True)
         st.pyplot(fig)
+
 
 
