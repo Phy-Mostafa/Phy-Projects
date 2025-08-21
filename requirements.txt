@@ -6,3 +6,4 @@ scipy
 cclib
 py3Dmol
 openpyxl
+yt-dlp
