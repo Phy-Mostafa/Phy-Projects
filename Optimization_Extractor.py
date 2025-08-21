@@ -87,12 +87,21 @@ def write_mol(atom_coords):
     return "\n".join(lines)
 
 # --- Visualization ---
-def show_3d(atom_coords):
+def show_3d(atom_coords, style_option):
     xyz = write_xyz(atom_coords)
-    view = py3Dmol.view(width=500, height=400)
+    view = py3Dmol.view(width=600, height=500)
     view.addModel(xyz, "xyz")
-    view.setStyle({"stick":{}, "sphere":{"scale":0.25}})
+    if style_option == "Ball and Stick":
+        view.setStyle({"stick": {}, "sphere": {"scale": 0.25}})
+    elif style_option == "Stick":
+        view.setStyle({"stick": {}})
+    elif style_option == "Sphere":
+        view.setStyle({"sphere": {}})
+    elif style_option == "Wireframe":
+        view.setStyle({"line": {}})
     view.zoomTo()
+    view.setBackgroundColor("#000000")  # Black background for contrast
+    view.addBox({"center": {}, "dimensions": {"w": 10, "h": 10, "d": 10}, "color": "white", "opacity": 0.2})  # Add box frame
     return view
 
 # --- Streamlit UI ---
@@ -129,16 +138,19 @@ if uploaded_file is not None:
     mol_text = write_mol(atom_coords)
     st.download_button("Download Structure (MOL)", mol_text.encode("utf-8"), "optimized_structure.mol", "text/plain")
 
-    # Show extracted parameters
-    st.subheader("Optimized Parameters (Preview)")
-    st.write("**Bonds (R)**")
-    st.dataframe(bonds)
-    st.write("**Angles (A)**")
-    st.dataframe(angles)
-    st.write("**Dihedrals (D)**")
-    st.dataframe(dihedrals)
+    # Layout with two vertical containers
+    with st.container():
+        st.header("3D Molecular Structure")
+        style_option = st.selectbox("Select Display Style", ["Ball and Stick", "Stick", "Sphere", "Wireframe"])
+        if atom_coords:
+            view = show_3d(atom_coords, style_option)
+            st.components.v1.html(view._make_html(), height=500)
 
-    # Show 3D structure
-    st.subheader("3D Molecular Structure (Ball & Stick)")
-    view = show_3d(atom_coords)
-    st.components.v1.html(view._make_html(), height=500)
+    with st.container():
+        st.header("Optimized Parameters")
+        st.subheader("Bonds (R)")
+        st.dataframe(bonds)
+        st.subheader("Angles (A)")
+        st.dataframe(angles)
+        st.subheader("Dihedrals (D)")
+        st.dataframe(dihedrals)
