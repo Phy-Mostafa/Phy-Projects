@@ -49,19 +49,26 @@ def parse_last_standard_orientation(file):
 
 def extract_optimized_parameters(file, atom_map):
     parameters = []
+    capture = False
     for line in file.splitlines():
-        match = re.match(r"\s*!\s+([RAD]\d+)\s+([RAD]\([\d,]+\))\s+(-?\d+\.\d+)", line)
-        if match:
-            name, definition, value = match.groups()
-            value = float(value)
-            atoms = list(map(int, re.findall(r"\d+", definition)))
-            atoms_labeled = [atom_map.get(a, str(a)) for a in atoms]
-            parameters.append({
-                "Name": name,
-                "Type": definition[0],
-                "Atoms": "-".join(atoms_labeled),
-                "Value": value
-            })
+        if "Optimization completed" in line:
+            capture = True
+            continue
+        if capture:
+            match = re.match(r"\s*!\s+([RAD]\d+)\s+([RAD]\([\d,]+\))\s+(-?\d+\.\d+)", line)
+            if match:
+                name, definition, value = match.groups()
+                value = float(value)
+                atoms = list(map(int, re.findall(r"\d+", definition)))
+                atoms_labeled = [atom_map.get(a, str(a)) for a in atoms]
+                parameters.append({
+                    "Name": name,
+                    "Type": definition[0],
+                    "Atoms": "-".join(atoms_labeled),
+                    "Value": value
+                })
+            elif line.strip() == "":  # Stop capturing on empty line after parameters
+                capture = False
     df = pd.DataFrame(parameters)
     return df
 
@@ -147,7 +154,7 @@ if uploaded_file is not None:
             st.components.v1.html(view._make_html(), height=500)
 
     with st.container():
-        st.header("Optimized Parameters")
+        st.header("Optimization completed.")
         st.subheader("Bonds (R)")
         st.dataframe(bonds)
         st.subheader("Angles (A)")
