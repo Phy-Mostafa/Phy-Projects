@@ -5,3 +5,4 @@ pandas
 scipy
 cclib
 py3Dmol
+openpyxl
